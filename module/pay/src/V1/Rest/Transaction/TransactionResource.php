@@ -1,19 +1,11 @@
 <?php
-namespace Usuario\V1\Rest\UsuarioPadrao;
+namespace pay\V1\Rest\Transaction;
 
 use Laminas\ApiTools\ApiProblem\ApiProblem;
 use Laminas\ApiTools\Rest\AbstractResourceListener;
 
-class UsuarioPadraoResource extends AbstractResourceListener
+class TransactionResource extends AbstractResourceListener
 {
-
-    protected $mapper;
-
-    public function __construct(UsuarioPadraoMapper $mapper)
-    {
-        $this->mapper = $mapper;
-    }
-
     /**
      * Create a resource
      *
@@ -22,19 +14,7 @@ class UsuarioPadraoResource extends AbstractResourceListener
      */
     public function create($data)
     {
-        $usuario = new UsuarioPadraoEntity();
-        $usuario->setNome($data->nome_completo);
-        $usuario->setEmail($data->email);
-        $usuario->setCpf($data->cpf);
-        $usuario->setSenha($data->senha);
-        
-        
-        $retorno = $this->mapper->save($usuario);
-        if(!isset($retorno)){
-            return new ApiProblem(404, "Entidade com id {$id} não foi encontrada");
-        }
-        return $retorno;
-//        return new ApiProblem(405, 'The POST method has not been defined');
+        return new ApiProblem(405, 'The POST method has not been defined');
     }
 
     /**
@@ -45,11 +25,7 @@ class UsuarioPadraoResource extends AbstractResourceListener
      */
     public function delete($id)
     {
-        if ($this->mapper->delete($id)) {
-            return true;
-        }
-        return new ApiProblem(404, 'Not possible to delete submitter with id ' . $id);
-//        return new ApiProblem(405, 'The DELETE method has not been defined for individual resources');
+        return new ApiProblem(405, 'The DELETE method has not been defined for individual resources');
     }
 
     /**
@@ -71,8 +47,7 @@ class UsuarioPadraoResource extends AbstractResourceListener
      */
     public function fetch($id)
     {
-        return $this->mapper->fetch($id);
-//        return new ApiProblem(405, 'The GET method has not been defined for individual resources');
+        return new ApiProblem(405, 'The GET method has not been defined for individual resources');
     }
 
     /**
@@ -83,8 +58,7 @@ class UsuarioPadraoResource extends AbstractResourceListener
      */
     public function fetchAll($params = [])
     {
-        return $this->mapper->fetchAll();
-//        return new ApiProblem(405, 'The GET method has not been defined for collections');
+        return new ApiProblem(405, 'The GET method has not been defined for collections');
     }
 
     /**
@@ -130,18 +104,6 @@ class UsuarioPadraoResource extends AbstractResourceListener
      */
     public function update($id, $data)
     {
-        $usuario = new UsuarioPadraoEntity();
-        $usuario->setId($id);
-        $usuario->setNome($data->nome_completo);
-        $usuario->setEmail($data->email);
-        $usuario->setCpf($data->cpf);
-        $usuario->setSenha($data->senha);
-
-        $retorno = $this->mapper->save($usuario);
-        if(!isset($retorno)){
-            return new ApiProblem(404, "Entidade com id {$id} não foi encontrada");
-        }
-        return $retorno;
-//        return new ApiProblem(405, 'The PUT method has not been defined for individual resources');
+        return new ApiProblem(405, 'The PUT method has not been defined for individual resources');
     }
 }

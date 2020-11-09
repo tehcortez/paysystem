@@ -1,11 +1,7 @@
 <?php
-namespace Usuario;
+namespace pay;
 
 use Laminas\ApiTools\Provider\ApiToolsProviderInterface;
-use Usuario\V1\Rest\Lojista\LojistaMapper;
-use Usuario\V1\Rest\Lojista\LojistaMapperFactory;
-use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoMapper;
-use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoMapperFactory;
 
 class Module implements ApiToolsProviderInterface
 {
@@ -29,8 +25,7 @@ class Module implements ApiToolsProviderInterface
     {
         return array(
             'factories' => array(
-                UsuarioPadraoMapper::class => UsuarioPadraoMapperFactory::class,
-                LojistaMapper::class => LojistaMapperFactory::class
+                
             )
         );
     }

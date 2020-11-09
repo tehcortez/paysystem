@@ -1,19 +1,17 @@
 <?php
-namespace Usuario\V1\Rest\UsuarioPadrao;
+namespace Usuario\V1\Rest\Lojista;
 
 use Laminas\ApiTools\ApiProblem\ApiProblem;
 use Laminas\ApiTools\Rest\AbstractResourceListener;
 
-class UsuarioPadraoResource extends AbstractResourceListener
+class LojistaResource extends AbstractResourceListener
 {
-
     protected $mapper;
 
-    public function __construct(UsuarioPadraoMapper $mapper)
+    public function __construct(LojistaMapper $mapper)
     {
         $this->mapper = $mapper;
     }
-
     /**
      * Create a resource
      *
@@ -22,17 +20,17 @@ class UsuarioPadraoResource extends AbstractResourceListener
      */
     public function create($data)
     {
-        $usuario = new UsuarioPadraoEntity();
-        $usuario->setNome($data->nome_completo);
-        $usuario->setEmail($data->email);
-        $usuario->setCpf($data->cpf);
-        $usuario->setSenha($data->senha);
+        $lojista = new LojistaEntity();
+        $lojista->setNome($data->nome_completo);
+        $lojista->setEmail($data->email);
+        $lojista->setCnpj($data->cnpj);
+        $lojista->setSenha($data->senha);
         
-        
-        $retorno = $this->mapper->save($usuario);
-        if(!isset($retorno)){
-            return new ApiProblem(404, "Entidade com id {$id} não foi encontrada");
+        $retorno = $this->mapper->save($lojista);
+        if(isset($retorno['error'])){
+            return new ApiProblem(400, $retorno['error']);
         }
+        
         return $retorno;
 //        return new ApiProblem(405, 'The POST method has not been defined');
     }
@@ -130,14 +128,14 @@ class UsuarioPadraoResource extends AbstractResourceListener
      */
     public function update($id, $data)
     {
-        $usuario = new UsuarioPadraoEntity();
-        $usuario->setId($id);
-        $usuario->setNome($data->nome_completo);
-        $usuario->setEmail($data->email);
-        $usuario->setCpf($data->cpf);
-        $usuario->setSenha($data->senha);
+        $lojista = new LojistaEntity();
+        $lojista->setId($id);
+        $lojista->setNome($data->nome_completo);
+        $lojista->setEmail($data->email);
+        $lojista->setCnpj($data->cnpj);
+        $lojista->setSenha($data->senha);
 
-        $retorno = $this->mapper->save($usuario);
+        $retorno = $this->mapper->save($lojista);
         if(!isset($retorno)){
             return new ApiProblem(404, "Entidade com id {$id} não foi encontrada");
         }

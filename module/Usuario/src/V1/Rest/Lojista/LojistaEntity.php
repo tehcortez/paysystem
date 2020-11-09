@@ -1,21 +1,21 @@
 <?php
-namespace Usuario\V1\Rest\UsuarioPadrao;
+namespace Usuario\V1\Rest\Lojista;
 
-class UsuarioPadraoEntity
+class LojistaEntity
 {    
     function __construct()
     {
-        $this->tipo = 0;
+        $this->tipo = 1;
     }
 
     private $id;
     private $nome;
-    private $cpf;
+    private $cnpj;
     private $email;
     private $senha;
     private $tipo;
     private $carteira;
-    
+
     function getId()
     {
         return $this->id;
@@ -26,9 +26,9 @@ class UsuarioPadraoEntity
         return $this->nome;
     }
 
-    function getCpf()
+    function getCnpj()
     {
-        return $this->cpf;
+        return $this->cnpj;
     }
 
     function getEmail()
@@ -40,7 +40,7 @@ class UsuarioPadraoEntity
     {
         return $this->senha;
     }
-    
+
     function getTipo()
     {
         return $this->tipo;
@@ -61,9 +61,9 @@ class UsuarioPadraoEntity
         $this->nome = $nome;
     }
 
-    function setCpf($cpf)
+    function setCnpj($cnpj)
     {
-        $this->cpf = $cpf;
+        $this->cnpj = $cnpj;
     }
 
     function setEmail($email)
@@ -75,27 +75,29 @@ class UsuarioPadraoEntity
     {
         $this->senha = $senha;
     }
-    
+
     function setCarteira($carteira)
     {
         $this->carteira = $carteira/100;
     }
-    
-    public function getArrayCopy(){
+
+    public function getArrayCopy()
+    {
         return array(
             'id' => $this->getId(),
             'nome_completo' => $this->getNome(),
-            'cpf' => $this->getCpf(),
+            'cnpj' => $this->getCnpj(),
             'email' => $this->getEmail(),
             'senha' => $this->getSenha(),
             'carteira' => $this->getCarteira()
         );
     }
-    
-    public function exchangeArray(array $array){
+
+    public function exchangeArray(array $array)
+    {
         $this->setId($array['id']);
         $this->setNome($array['nome_completo']);
-        $this->setCpf($array['cpf']);
+        $this->setCnpj($array['cpf']);
         $this->setEmail($array['email']);
         $this->setSenha($array['senha']);
         $this->setCarteira($array['carteira']);

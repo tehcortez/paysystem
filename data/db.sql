@@ -1,0 +1,20 @@
+CREATE TABLE `usuario` (
+  id INTEGER PRIMARY KEY,
+  nome_completo varchar(255) DEFAULT NULL,
+  cpf varchar(14) UNIQUE NOT NULL,
+  email varchar(255) UNIQUE NOT NULL,
+  senha varchar(255) NOT NULL,
+  tipo INTEGER DEFAULT 0 NOT NULL, 
+  carteira INTEGER DEFAULT 0 NOT NULL,
+  CONSTRAINT usuario_UN1 UNIQUE (cpf),
+  CONSTRAINT usuario_UN2 UNIQUE (email)
+);
+
+CREATE TABLE `transaction` (
+	id INTEGER PRIMARY KEY,
+	`value` INTEGER NOT NULL,
+	payer INTEGER NOT NULL,
+	payee INTEGER NOT NULL,
+	CONSTRAINT transaction_FK FOREIGN KEY (payer) REFERENCES usuario(id) ON DELETE CASCADE ON UPDATE CASCADE,
+	CONSTRAINT transaction_FK_1 FOREIGN KEY (payee) REFERENCES usuario(id) ON DELETE CASCADE ON UPDATE CASCADE
+);

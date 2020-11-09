@@ -5,6 +5,7 @@ class UsuarioPadraoResourceFactory
 {
     public function __invoke($services)
     {
-        return new UsuarioPadraoResource();
+        $mapper = $services->get(UsuarioPadraoMapper::class);
+        return new UsuarioPadraoResource($mapper);
     }
 }
