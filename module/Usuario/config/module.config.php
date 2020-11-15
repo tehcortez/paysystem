@@ -200,6 +200,18 @@ return [
                 'name' => 'senha',
                 'description' => 'Senha do usuário padrão',
             ],
+            4 => [
+                'required' => false,
+                'validators' => [
+                    0 => [
+                        'name' => \Laminas\Validator\Digits::class,
+                        'options' => [],
+                    ],
+                ],
+                'filters' => [],
+                'name' => 'carteira',
+                'description' => 'Saldo da carteira do usuario',
+            ],
         ],
         'Usuario\\V1\\Rest\\Lojista\\Validator' => [
             0 => [

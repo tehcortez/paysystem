@@ -6,12 +6,14 @@ use Laminas\ApiTools\Rest\AbstractResourceListener;
 
 class LojistaResource extends AbstractResourceListener
 {
+
     protected $mapper;
 
     public function __construct(LojistaMapper $mapper)
     {
         $this->mapper = $mapper;
     }
+
     /**
      * Create a resource
      *
@@ -25,13 +27,20 @@ class LojistaResource extends AbstractResourceListener
         $lojista->setEmail($data->email);
         $lojista->setCnpj($data->cnpj);
         $lojista->setSenha($data->senha);
-        
-        $retorno = $this->mapper->save($lojista);
-        if(isset($retorno['error'])){
-            return new ApiProblem(400, $retorno['error']);
+        if (isset($data->carteira)) {
+            $lojista->setCarteira($data->carteira);
         }
-        
-        return $retorno;
+
+        $retorno = $this->mapper->saveInsert($lojista);
+        if ($retorno instanceof LojistaEntity) {
+            return $retorno;
+        }
+        if (is_array($retorno)) {
+            if (isset($retorno['error'])) {
+                return new ApiProblem($retorno['code'], $retorno['error']);
+            }
+        }
+        return new ApiProblem(422, 'Unprocessable Entity');
 //        return new ApiProblem(405, 'The POST method has not been defined');
     }
 
@@ -134,12 +143,19 @@ class LojistaResource extends AbstractResourceListener
         $lojista->setEmail($data->email);
         $lojista->setCnpj($data->cnpj);
         $lojista->setSenha($data->senha);
-
-        $retorno = $this->mapper->save($lojista);
-        if(!isset($retorno)){
-            return new ApiProblem(404, "Entidade com id {$id} não foi encontrada");
+        if (isset($data->carteira)) {
+            $lojista->setCarteira($data->carteira);
         }
-        return $retorno;
+        $retorno = $this->mapper->saveUpdate($lojista);
+        if ($retorno instanceof LojistaEntity) {
+            return $retorno;
+        }
+        if (is_array($retorno)) {
+            if (isset($retorno['error'])) {
+                return new ApiProblem($retorno['code'], $retorno['error']);
+            }
+        }
+        return new ApiProblem(422, 'Unprocessable Entity');
 //        return new ApiProblem(405, 'The PUT method has not been defined for individual resources');
     }
 }

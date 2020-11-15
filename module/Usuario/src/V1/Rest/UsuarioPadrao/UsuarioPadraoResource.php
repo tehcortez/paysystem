@@ -27,13 +27,20 @@ class UsuarioPadraoResource extends AbstractResourceListener
         $usuario->setEmail($data->email);
         $usuario->setCpf($data->cpf);
         $usuario->setSenha($data->senha);
-        
-        
-        $retorno = $this->mapper->save($usuario);
-        if(!isset($retorno)){
-            return new ApiProblem(404, "Entidade com id {$id} não foi encontrada");
+        if (isset($data->carteira)) {
+            $usuario->setCarteira($data->carteira);
         }
-        return $retorno;
+
+        $retorno = $this->mapper->saveInsert($usuario);
+        if ($retorno instanceof UsuarioPadraoEntity) {
+            return $retorno;
+        }
+        if (is_array($retorno)) {
+            if (isset($retorno['error'])) {
+                return new ApiProblem($retorno['code'], $retorno['error']);
+            }
+        }
+        return new ApiProblem(422, 'Unprocessable Entity');
 //        return new ApiProblem(405, 'The POST method has not been defined');
     }
 
@@ -136,12 +143,19 @@ class UsuarioPadraoResource extends AbstractResourceListener
         $usuario->setEmail($data->email);
         $usuario->setCpf($data->cpf);
         $usuario->setSenha($data->senha);
-
-        $retorno = $this->mapper->save($usuario);
-        if(!isset($retorno)){
-            return new ApiProblem(404, "Entidade com id {$id} não foi encontrada");
+        if (isset($data->carteira)) {
+            $usuario->setCarteira($data->carteira);
         }
-        return $retorno;
+        $retorno = $this->mapper->saveUpdate($usuario);
+        if ($retorno instanceof UsuarioPadraoEntity) {
+            return $retorno;
+        }
+        if (is_array($retorno)) {
+            if (isset($retorno['error'])) {
+                return new ApiProblem($retorno['code'], $retorno['error']);
+            }
+        }
+        return new ApiProblem(422, 'Unprocessable Entity');
 //        return new ApiProblem(405, 'The PUT method has not been defined for individual resources');
     }
 }

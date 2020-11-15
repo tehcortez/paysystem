@@ -15,7 +15,7 @@ class UsuarioPadraoMapper
 
     public function fetchAll()
     {
-        $resultSet = $this->tg->select();
+        $resultSet = $this->tg->select(['tipo' => 0]);
         return $resultSet;
     }
 
@@ -33,7 +33,6 @@ class UsuarioPadraoMapper
 
     public function fetchByCpf($cpf)
     {
-        $id = (int) $id;
         $resultSet = $this->tg->select(['cpf' => $cpf]);
         $row = $resultSet->current();
 
@@ -45,7 +44,6 @@ class UsuarioPadraoMapper
 
     public function fetchByEmail($email)
     {
-        $id = (int) $id;
         $resultSet = $this->tg->select(['email' => $email]);
         $row = $resultSet->current();
 
@@ -55,36 +53,63 @@ class UsuarioPadraoMapper
         return $row;
     }
 
-    public function save(UsuarioPadraoEntity $usuario)
+    public function saveInsert(UsuarioPadraoEntity $usuario)
     {
-        $data = [
-            'nome_completo' => $usuario->getNome(),
-            'cpf' => $usuario->getCpf(),
-            'email' => $usuario->getEmail(),
-            'senha' => $usuario->getSenha()
-        ];
+        $data = $usuario->getArrayCopy();
+        $data['senha'] = $usuario->getSenha();
+        if (!isset($data['carteira'])) {
+            $data['carteira'] = 0;
+        }else {
+            $data['carteira'] = $data['carteira']*100;
+        }
+        
+        $usuarioExistente = $this->fetchByCpf($usuario->getCpf());
+        if ($usuarioExistente instanceof UsuarioPadraoEntity) {
+            return ['code' => '409',
+                'error' => 'Usuario com mesmo CPF ja cadastrado'];
+        }
+        $usuarioExistente = $this->fetchByEmail($usuario->getEmail());
+        if ($usuarioExistente instanceof UsuarioPadraoEntity) {
+            return ['code' => '409',
+                'error' => 'Usuario com mesmo e-mail ja cadastrado'];
+        }
+        $this->tg->insert($data);
+        $usuario->setId($this->tg->lastInsertValue);
+        return $usuario;
+    }
 
+    public function saveUpdate(UsuarioPadraoEntity $usuario)
+    {
+        $data = $usuario->getArrayCopy();
         $id = (int) $usuario->getId();
-
-        if ($id == 0) {
+        $originUsuario = $this->fetch($id);
+        if ($originUsuario instanceof UsuarioPadraoEntity) {
             $usuarioExistente = $this->fetchByCpf($usuario->getCpf());
-            if (null === $usuarioExistente) {
-                return null;
+            if ($usuarioExistente instanceof UsuarioPadraoEntity) {
+                if ($usuarioExistente->getId() != $usuario->getId()) {
+                    return ['code' => '409',
+                        'error' => 'Outro usuario com mesmo CPF ja cadastrado'];
+                }
             }
             $usuarioExistente = $this->fetchByEmail($usuario->getEmail());
-            if (null === $usuarioExistente) {
-                return null;
+            if ($usuarioExistente instanceof UsuarioPadraoEntity) {
+                if ($usuarioExistente->getId() != $usuario->getId()) {
+                    return ['code' => '409',
+                        'error' => 'Outro usuario com mesmo e-mail ja cadastrado'];
+                }
             }
-            $res = $this->tg->insert($data);
-            $usuario->setId($this->tg->lastInsertValue);
+            if (is_null($usuario->getCarteira())) {
+                $usuario->setCarteira($originUsuario->getCarteira() * 100);
+            } else {
+                $data['carteira'] = $data['carteira']*100;
+            }
+
+            $this->tg->update($data, ['id' => $id]);
+
             return $usuario;
         } else {
-            if ($this->fetch($id) instanceof UsuarioPadraoEntity) {
-                $this->tg->update($data, ['id' => $id]);
-                return $usuario;
-            } else {
-                return null;
-            }
+            return ['code' => '404',
+                'error' => 'Id ' . $id . ' não é de um usuário padrão ou não existe'];
         }
     }
 

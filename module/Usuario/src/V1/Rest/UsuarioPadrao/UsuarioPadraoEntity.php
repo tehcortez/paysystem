@@ -2,7 +2,8 @@
 namespace Usuario\V1\Rest\UsuarioPadrao;
 
 class UsuarioPadraoEntity
-{    
+{
+
     function __construct()
     {
         $this->tipo = 0;
@@ -15,7 +16,7 @@ class UsuarioPadraoEntity
     private $senha;
     private $tipo;
     private $carteira;
-    
+
     function getId()
     {
         return $this->id;
@@ -40,7 +41,7 @@ class UsuarioPadraoEntity
     {
         return $this->senha;
     }
-    
+
     function getTipo()
     {
         return $this->tipo;
@@ -75,24 +76,28 @@ class UsuarioPadraoEntity
     {
         $this->senha = $senha;
     }
-    
+
     function setCarteira($carteira)
     {
-        $this->carteira = $carteira/100;
+        $this->carteira = $carteira / 100;
     }
-    
-    public function getArrayCopy(){
-        return array(
+
+    public function getArrayCopy()
+    {
+        $data = [
             'id' => $this->getId(),
             'nome_completo' => $this->getNome(),
             'cpf' => $this->getCpf(),
-            'email' => $this->getEmail(),
-            'senha' => $this->getSenha(),
-            'carteira' => $this->getCarteira()
-        );
+//            'senha' => $this->getSenha(),
+            'email' => $this->getEmail()];
+        if (!is_null($this->getCarteira())) {
+            $data['carteira'] = $this->getCarteira();
+        }
+        return $data;
     }
-    
-    public function exchangeArray(array $array){
+
+    public function exchangeArray(array $array)
+    {
         $this->setId($array['id']);
         $this->setNome($array['nome_completo']);
         $this->setCpf($array['cpf']);

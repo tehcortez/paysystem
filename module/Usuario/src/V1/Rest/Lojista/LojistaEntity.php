@@ -2,7 +2,8 @@
 namespace Usuario\V1\Rest\Lojista;
 
 class LojistaEntity
-{    
+{
+
     function __construct()
     {
         $this->tipo = 1;
@@ -78,19 +79,21 @@ class LojistaEntity
 
     function setCarteira($carteira)
     {
-        $this->carteira = $carteira/100;
+        $this->carteira = $carteira / 100;
     }
 
     public function getArrayCopy()
     {
-        return array(
+        $data = [
             'id' => $this->getId(),
             'nome_completo' => $this->getNome(),
             'cnpj' => $this->getCnpj(),
-            'email' => $this->getEmail(),
-            'senha' => $this->getSenha(),
-            'carteira' => $this->getCarteira()
-        );
+//            'senha' => $this->getSenha(),
+            'email' => $this->getEmail()];
+        if (!is_null($this->getCarteira())) {
+            $data['carteira'] = $this->getCarteira();
+        }
+        return $data;
     }
 
     public function exchangeArray(array $array)
