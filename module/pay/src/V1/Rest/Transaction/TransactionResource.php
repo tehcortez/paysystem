@@ -3,9 +3,25 @@ namespace pay\V1\Rest\Transaction;
 
 use Laminas\ApiTools\ApiProblem\ApiProblem;
 use Laminas\ApiTools\Rest\AbstractResourceListener;
+use Usuario\V1\Rest\Lojista\LojistaMapper;
+use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoEntity;
+use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoMapper;
 
 class TransactionResource extends AbstractResourceListener
 {
+    private $mapper;
+    private $usuarioPadraoMapper;
+    private $lojistaMapper;
+
+    public function __construct(
+        TransactionMapper $mapper, 
+        UsuarioPadraoMapper $usuarioPadraoMapper, 
+        LojistaMapper $lojistaMapper)
+    {
+        $this->mapper = $mapper;
+        $this->usuarioPadraoMapper = $usuarioPadraoMapper;
+        $this->lojistaMapper = $lojistaMapper;
+    }
     /**
      * Create a resource
      *
@@ -14,7 +30,31 @@ class TransactionResource extends AbstractResourceListener
      */
     public function create($data)
     {
-        return new ApiProblem(405, 'The POST method has not been defined');
+        $payer = $this->usuarioPadraoMapper->fetch($data->payer);
+        if (!($payer instanceof UsuarioPadraoEntity)) {
+            return new ApiProblem(404, 'Id ' . $data->payer . ' não é de um usuário padrão ou não existe');
+        }
+        $payee = $this->usuarioPadraoMapper->fetch($data->payee);
+        if (!($payee instanceof UsuarioPadraoEntity)) {
+            $payee = $this->lojistaMapper->fetch($data->payee);
+            if (!($payee instanceof LojistaEntity)) {
+                return new ApiProblem(404, 'Id ' . $data->payer . ' não existe');
+            }
+        }
+        $transaction = new TransactionEntity();
+        $transaction->setValue($data->value);
+        $transaction->setPayerId($data->payer);
+        $transaction->setPayeeId($data->payee); 
+        $retorno = $this->mapper->transfer($transaction);
+        if ($retorno instanceof UsuarioPadraoEntity) {
+            return $retorno;
+        }
+        if (is_array($retorno)) {
+            if (isset($retorno['error'])) {
+                return new ApiProblem($retorno['code'], $retorno['error']);
+            }
+        }
+        return new ApiProblem(422, 'Unprocessable Entity');
     }
 
     /**
@@ -58,6 +98,7 @@ class TransactionResource extends AbstractResourceListener
      */
     public function fetchAll($params = [])
     {
+        return $this->mapper->fetchAll();
         return new ApiProblem(405, 'The GET method has not been defined for collections');
     }
 

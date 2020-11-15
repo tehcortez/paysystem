@@ -1,22 +1,36 @@
 <?php
 namespace pay\V1\Rest\Transaction;
 
-use Exception;
 use Laminas\Db\TableGateway\TableGateway;
+use Usuario\V1\Rest\Lojista\LojistaMapper;
+use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoEntity;
+use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoMapper;
 
 class TransactionMapper
 {
 
     protected $tg;
+    private $usuarioPadraoMapper;
+    private $lojistaMapper;
 
-    public function __construct(TableGateway $tableGateway)
+    public function __construct(
+        TableGateway $tableGateway,
+        UsuarioPadraoMapper $usuarioPadraoMapper,
+        LojistaMapper $lojistaMapper)
     {
         $this->tg = $tableGateway;
+        $this->usuarioPadraoMapper = $usuarioPadraoMapper;
+        $this->lojistaMapper = $lojistaMapper;
     }
 
     public function fetchAll()
     {
         $resultSet = $this->tg->select();
+//        foreach($resultSet as $result){
+//            var_dump($result);
+//        }
+//        die;
+//        var_dump($resultSet);die;
         return $resultSet;
     }
 
@@ -32,33 +46,30 @@ class TransactionMapper
         return $row;
     }
 
-    public function save(LojistaEntity $usuario)
+    public function transfer(TransactionEntity $transaction)
     {
-        $data = [
-            'nome_completo' => $usuario->getNome(),
-            'cnpj' => $usuario->getCnpj(),
-            'email' => $usuario->getEmail(),
-            'senha' => $usuario->getSenha()
-        ];
-
-        $id = (int) $usuario->getId();
-
-        if ($id == 0) {
-            $res = $this->tg->insert($data);
-            $usuario->setId($this->tg->lastInsertValue);
-            return $usuario;
-        } else {
-            if ($this->fetch($id) instanceof LojistaEntity) {
-                $this->tg->update($data, ['id' => $id]);
-                return $usuario;
-            } else {
-                return null;
+        $data = $transaction->getArrayCopy();
+        $payer = $this->usuarioPadraoMapper->fetch($data->payer);
+        if (!($payer instanceof UsuarioPadraoEntity)) {
+            return new ApiProblem(404, 'Payer com id ' . $data->payer . ' não é de um usuário padrão ou não existe');
+        }
+        $payee = $this->usuarioPadraoMapper->fetch($data->payee);
+        if (!($payee instanceof UsuarioPadraoEntity)) {
+            $payee = $this->lojistaMapper->fetch($data->payee);
+            if (!($payee instanceof LojistaEntity)) {
+                return new ApiProblem(404, 'Id ' . $data->payer . ' não existe');
             }
         }
-    }
-
-    public function delete($id)
-    {
-        return $this->tg->delete(['id' => (int) $id]);
+        $transaction->setPayerObj($payer);
+        $transaction->setPayeeObj($payee);
+        $transaction->transfer();
+        $payer->setCarteira(($payer->getCarteira()*100) - ($transaction->getValue()*100));
+        $payer = $this->usuarioPadraoMapper->saveUpdate($payer);
+        $payee->setCarteira(($payee->getCarteira()*100) - ($transaction->getValue()*100));
+        $payee = $this->usuarioPadraoMapper->saveUpdate($payee);
+        
+        $this->tg->insert($data);
+        $transaction->setId($this->tg->lastInsertValue);
+        return $transaction;
     }
 }

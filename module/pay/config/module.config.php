@@ -114,12 +114,7 @@ return [
             ],
             2 => [
                 'required' => true,
-                'validators' => [
-                    0 => [
-                        'name' => \Laminas\Validator\Digits::class,
-                        'options' => [],
-                    ],
-                ],
+                'validators' => [],
                 'filters' => [],
                 'name' => 'payee',
                 'description' => 'Id do usuario recebedor da transação',

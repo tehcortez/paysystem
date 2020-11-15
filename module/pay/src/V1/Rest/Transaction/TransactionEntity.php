@@ -1,25 +1,25 @@
 <?php
 namespace pay\V1\Rest\Transaction;
 
-use Exception;
-use Usuario\V1\Rest\Lojista\LojistaEntity;
-use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoEntity;
+use pay\Service\AutorizadorExternoService;
 
 class TransactionEntity
 {
 
     private $id;
     private $value;
-    private $payer;
-    private $payee;
+    private $payerId;
+    private $payeeId;
+    private $payerObj;
+    private $payeeObj;
     private $autorizadorExterno;
-    
-    function __construct(\pay\Service\AutorizadorExternoService $autorizadorExterno)
+
+    function __construct()
     {
-        $this->autorizadorExterno = $autorizadorExterno;
+        $this->autorizadorExterno = new AutorizadorExternoService();
     }
 
-        function getId()
+    function getId()
     {
         return $this->id;
     }
@@ -28,17 +28,27 @@ class TransactionEntity
     {
         return $this->value;
     }
-
-    function getPayer()
+    
+    function getPayerId()
     {
-        return $this->payer;
+        return $this->payerId;
     }
 
-    function getPayee()
+    function getPayeeId()
     {
-        return $this->payee;
+        return $this->payeeId;
     }
 
+    function getPayerObj()
+    {
+        return $this->payerObj;
+    }
+
+    function getPayeeObj()
+    {
+        return $this->payeeObj;
+    }
+    
     function setId($id)
     {
         $this->id = $id;
@@ -49,32 +59,42 @@ class TransactionEntity
         $this->value = $value;
     }
 
-    function setPayer($payer)
+    function setPayerId($payerId)
     {
-        if ($payer instanceof UsuarioPadraoEntity) {
-            $this->payer = $payer;
+        $this->payerId = $payerId;
+    }
+
+    function setPayeeId($payeeId)
+    {
+        $this->payeeId = $payeeId;
+    }
+
+    function setPayerObj($payerObj)
+    {
+        if ($payerObj instanceof UsuarioPadraoEntity) {
+            $this->$payerObj = $payerObj;
         } else {
             throw new Exception('Payer tem que ser do tipo usuario padrao');
         }
     }
 
-    function setPayee($payee)
+    function setPayeeObj($payeeObj)
     {
-        if (($payee instanceof LojistaEntity) ||
-            ($payee instanceof UsuarioPadraoEntity)) {
-            $this->payee = $payee;
+        if (($payeeObj instanceof LojistaEntity) ||
+            ($payeeObj instanceof UsuarioPadraoEntity)) {
+            $this->$payeeObj = $payeeObj;
         } else {
             throw new Exception('Payee tem que ser do tipo usuario padrao ou lojista');
         }
     }
-
+    
     public function getArrayCopy()
     {
         return array(
             'id' => $this->getId(),
-            'value' => $this->getNome(),
-            'payer' => $this->getPayer(),
-            'payee' => $this->getPayee()
+            'value' => $this->getValue(),
+            'payer' => $this->getPayerId(),
+            'payee' => $this->getPayeeId()
         );
     }
 
@@ -82,18 +102,18 @@ class TransactionEntity
     {
         $this->setId($array['id']);
         $this->setValue($array['value']);
-        $this->setPayer($array['payer']);
-        $this->setPayee($array['payee']);
+        $this->setPayerId($array['payer']);
+        $this->setPayeeId($array['payee']);
     }
 
     public function transfer()
     {
-        if($this->getPayer()->getCarteira() < $this->value){
-            return ['error'=>'saldo insuficiente'];
+        echo 'etanois';die;
+        if ($this->getPayerObj()->getCarteira() < $this->value) {
+            throw new Exception('saldo insuficiente');
         }
-        if($this->autorizadorExterno->autorizado($this->getValue())){
-            return ['error'=>'não autorizado por serviço autorizador externo'];
+        if ($this->autorizadorExterno->autorizado()) {
+            throw new Exception('não autorizado por serviço autorizador externo');
         }
-        
     }
 }

@@ -3,6 +3,8 @@ namespace pay\V1\Rest\Transaction;
 
 use Laminas\Db\ResultSet\ResultSet;
 use Laminas\Db\TableGateway\TableGateway;
+use Usuario\V1\Rest\Lojista\LojistaMapper;
+use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoMapper;
 
 class TransactionMapperFactory
 {
@@ -18,6 +20,8 @@ class TransactionMapperFactory
             null,
             $resultSetPrototype
         );
-        return new TransactionMapper($tableGateway);
+        $usuarioPadraoMapper = $services->get(UsuarioPadraoMapper::class);
+        $lojistaMapper = $services->get(LojistaMapper::class);
+        return new TransactionMapper($tableGateway,$usuarioPadraoMapper,$lojistaMapper);
     }
 }
