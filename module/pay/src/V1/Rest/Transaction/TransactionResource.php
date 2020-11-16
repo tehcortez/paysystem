@@ -3,6 +3,7 @@ namespace pay\V1\Rest\Transaction;
 
 use Laminas\ApiTools\ApiProblem\ApiProblem;
 use Laminas\ApiTools\Rest\AbstractResourceListener;
+use Usuario\V1\Rest\Lojista\LojistaEntity;
 use Usuario\V1\Rest\Lojista\LojistaMapper;
 use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoEntity;
 use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoMapper;
@@ -38,7 +39,7 @@ class TransactionResource extends AbstractResourceListener
         if (!($payee instanceof UsuarioPadraoEntity)) {
             $payee = $this->lojistaMapper->fetch($data->payee);
             if (!($payee instanceof LojistaEntity)) {
-                return new ApiProblem(404, 'Id ' . $data->payer . ' não existe');
+                return new ApiProblem(404, 'Id ' . $data->payee . ' não existe');
             }
         }
         $transaction = new TransactionEntity();
@@ -46,7 +47,7 @@ class TransactionResource extends AbstractResourceListener
         $transaction->setPayerId($data->payer);
         $transaction->setPayeeId($data->payee); 
         $retorno = $this->mapper->transfer($transaction);
-        if ($retorno instanceof UsuarioPadraoEntity) {
+        if ($retorno instanceof TransactionEntity) {
             return $retorno;
         }
         if (is_array($retorno)) {

@@ -2,6 +2,10 @@
 namespace pay\V1\Rest\Transaction;
 
 use pay\Service\AutorizadorExternoService;
+use pay\Service\MensagemDeNotificacaoService;
+use TheSeer\Tokenizer\Exception;
+use Usuario\V1\Rest\Lojista\LojistaEntity;
+use Usuario\V1\Rest\UsuarioPadrao\UsuarioPadraoEntity;
 
 class TransactionEntity
 {
@@ -13,10 +17,12 @@ class TransactionEntity
     private $payerObj;
     private $payeeObj;
     private $autorizadorExterno;
+    private $messagemDeNotificacao;
 
     function __construct()
     {
         $this->autorizadorExterno = new AutorizadorExternoService();
+        $this->messagemDeNotificacao = new MensagemDeNotificacaoService();
     }
 
     function getId()
@@ -72,7 +78,7 @@ class TransactionEntity
     function setPayerObj($payerObj)
     {
         if ($payerObj instanceof UsuarioPadraoEntity) {
-            $this->$payerObj = $payerObj;
+            $this->payerObj = $payerObj;
         } else {
             throw new Exception('Payer tem que ser do tipo usuario padrao');
         }
@@ -82,7 +88,7 @@ class TransactionEntity
     {
         if (($payeeObj instanceof LojistaEntity) ||
             ($payeeObj instanceof UsuarioPadraoEntity)) {
-            $this->$payeeObj = $payeeObj;
+            $this->payeeObj = $payeeObj;
         } else {
             throw new Exception('Payee tem que ser do tipo usuario padrao ou lojista');
         }
@@ -108,12 +114,18 @@ class TransactionEntity
 
     public function transfer()
     {
-        echo 'etanois';die;
         if ($this->getPayerObj()->getCarteira() < $this->value) {
             throw new Exception('saldo insuficiente');
         }
-        if ($this->autorizadorExterno->autorizado()) {
+        if (!$this->autorizadorExterno->autorizado()) {
             throw new Exception('não autorizado por serviço autorizador externo');
         }
+    }
+    
+    public function envioDeMensagem(){
+        if($this->messagemDeNotificacao->enviarMensagem()){
+            //mensagem enviada com sucesso
+        }
+        //mensagem não enviada, como proceder?
     }
 }

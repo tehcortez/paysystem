@@ -1,7 +1,7 @@
 <?php
 namespace pay\Service;
 
-class AutorizadorExternoService
+class MensagemDeNotificacaoService
 {
 
     private function doCurl()
@@ -9,7 +9,7 @@ class AutorizadorExternoService
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://run.mocky.io/v3/8fafdd68-a090-496f-8c9a-3442cf30dae6",
+            CURLOPT_URL => "https://run.mocky.io/v3/b19f7b9f-9cbf-4fc6-ad22-dc30601aec04",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -25,11 +25,11 @@ class AutorizadorExternoService
         return $response;
     }
     
-    public function autorizado()
+    public function enviarMensagem()
     {
         $response = $this->doCurl();
         $response = json_decode($response, true);
-        if($response['message'] == 'Autorizado'){
+        if($response['message'] == 'Enviado'){
             return true;
         }
         return false;

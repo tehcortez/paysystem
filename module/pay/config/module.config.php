@@ -29,12 +29,7 @@ return [
             'route_name' => 'pay.rest.transaction',
             'route_identifier_name' => 'transaction_id',
             'collection_name' => 'transaction',
-            'entity_http_methods' => [
-                0 => 'GET',
-                1 => 'PATCH',
-                2 => 'PUT',
-                3 => 'DELETE',
-            ],
+            'entity_http_methods' => [],
             'collection_http_methods' => [
                 0 => 'GET',
                 1 => 'POST',
@@ -90,12 +85,7 @@ return [
         'pay\\V1\\Rest\\Transaction\\Validator' => [
             0 => [
                 'required' => true,
-                'validators' => [
-                    0 => [
-                        'name' => \Laminas\Validator\Digits::class,
-                        'options' => [],
-                    ],
-                ],
+                'validators' => [],
                 'filters' => [],
                 'name' => 'value',
                 'description' => 'Valor da transação',
@@ -114,7 +104,12 @@ return [
             ],
             2 => [
                 'required' => true,
-                'validators' => [],
+                'validators' => [
+                    0 => [
+                        'name' => \Laminas\Validator\Digits::class,
+                        'options' => [],
+                    ],
+                ],
                 'filters' => [],
                 'name' => 'payee',
                 'description' => 'Id do usuario recebedor da transação',
